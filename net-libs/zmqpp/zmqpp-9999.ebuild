@@ -23,7 +23,7 @@ DEPEND="${RDEPEND}
 doc? ( app-doc/doxygen )
 test? ( dev-libs/boost )"
 
-LIB_VERSION="2"
+LIB_VERSION="4"
 
 src_configure() {
 	sed -i \
@@ -48,7 +48,8 @@ src_install() {
 	# work around primitive build system
 	insinto /usr/include/zmqpp
 	doins src/zmqpp/*.hpp
-	newlib.so build/gentoo-*/*.so.* libzmqpp.so.${LIB_VERSION}
+	newlib.so build/gentoo-*/libzmqpp.so.* libzmqpp.so.${LIB_VERSION}
+	dosym /usr/lib/libzmqpp.so.${LIB_VERSION} /usr/lib/libzmqpp.so
 	use static-libs && dolib.a build/gentoo-*/*.a
 	use client && dobin build/gentoo-*/zmqpp
 	use doc && dohtml -r docs/html/*
