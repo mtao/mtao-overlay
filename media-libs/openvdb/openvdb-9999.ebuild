@@ -41,7 +41,6 @@ blosc? ( dev-libs/c-blosc )
 logging? ( dev-libs/log4cplus )
 glfw? ( media-libs/glfw )
 python? ( dev-lang/python:2.7 dev-libs/boost[python] dev-python/numpy dev-python/epydoc )
-pydoc[python]
 "
 DEPEND="${RDEPEND}
 doc? ( app-doc/doxygen )
