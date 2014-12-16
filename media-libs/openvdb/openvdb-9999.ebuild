@@ -25,7 +25,7 @@ inherit git-2
 DESCRIPTION="High-level C++ bindings for ZeroMQ"
 HOMEPAGE="https://github.com/dreamworksanimation/openvdb_dev"
 EGIT_REPO_URI="https://github.com/mtao/openvdb_dev"
-EGIT_BRANCH="develop"
+EGIT_BRANCH="master"
 
 LICENSE="MPL-2.0"
 SLOT="0"
