@@ -30,12 +30,13 @@ EGIT_BRANCH="master"
 LICENSE="MPL-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="-doc -blosc +jemalloc -test -logging -glfw -python -pydoc"
+IUSE="clang -doc -blosc +jemalloc -test -logging -glfw -python -pydoc"
 
 RDEPEND="media-libs/ilmbase
 dev-libs/boost
 media-libs/openexr
 dev-cpp/tbb
+clang? ( sys-devel/clang )
 jemalloc? ( dev-libs/jemalloc )
 blosc? ( dev-libs/c-blosc )
 logging? ( dev-libs/log4cplus )
@@ -139,7 +140,11 @@ src_configure() {
 
 src_compile() {
 	pushd openvdb
-	emake VERBOSE=1
+	if use clang; then
+		emake CXX=clang++ CC=clang
+	else
+		emake 
+	fi
 	popd
 }
 
