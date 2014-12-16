@@ -80,9 +80,7 @@ src_configure() {
 
 	if use jemalloc ; then
 		sed -i \
-			-e "s|^CONCURRENT_MALLOC_LIB :=.*|CONCURRENT_MALLOC_LIB := -jemalloc|" \ 
-		    -e "s|^CONCURRENT_MALLOC_LIB_DIR.*|CONCURRENT_MALLOC_LIB_DIR := /usr/lib|" \
-			Makefile || die "sed failed"
+			-e "s|^CONCURRENT_MALLOC_LIB :=.*|CONCURRENT_MALLOC_LIB := -jemalloc|" -e "s|^CONCURRENT_MALLOC_LIB_DIR.*|CONCURRENT_MALLOC_LIB_DIR := /usr/lib|" Makefile || die "sed failed"
 	else
 		sed -i \
 			-e "s|^CONCURRENT_MALLOC_LIB :=.*|CONCURRENT_MALLOC_LIB :=|"\ 
