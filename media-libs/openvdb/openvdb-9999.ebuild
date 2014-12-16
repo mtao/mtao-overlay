@@ -65,6 +65,7 @@ set_flag() {
 }
 
 src_configure() {
+	pushd openvdb
 	sed -i \
 		-e 's|^BOOST_INCL_DIR.*|BOOST_INCL_DIR := /usr/include|' \
 		-e 's|^BOOST_LIB_DIR*|BOOST_LIB_DIR := /usr/lib|' \
@@ -121,6 +122,7 @@ src_configure() {
 			-e "s|^DOXYGEN:=.*|DOXYGEN:=|" \ 
 			Makefile || die "sed failed"
 	fi
+	popd
 }
 
 src_compile() {
