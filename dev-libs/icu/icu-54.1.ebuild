@@ -85,7 +85,7 @@ src_prepare() {
 		# Set type of UChar in C++ mode to char16_t.
 		append-cxxflags -DUCHAR_TYPE=char16_t
 		# Hardcode type of UChar in C++ mode in installed headers.
-		sed -e "/^    typedef UCHAR_TYPE UChar;$/a #elif defined(__cplusplus)\n    typedef char16_t UChar;" -i common/unicode/umachine.h || die "sed failed"
+		sed -e "/^    typedef UCHAR_TYPE UChar;$/a #elif defined(__cplusplus) && __cplusplus>=201103L\n    typedef char16_t UChar;" -i common/unicode/umachine.h || die "sed failed"
 	else
 		# Disable automatic detection of version of C++ standard.
 		if [[ "$(tc-getCXX)" == *g++* ]]; then
