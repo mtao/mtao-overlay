@@ -62,30 +62,31 @@ src_prepare() {
 	tc-export CC CXX
 
 	if use c++11; then
-		if [[ "$(tc-getCXX)" == *g++* ]]; then
-			if test-flag-CXX -std=gnu++11; then
-				# Disable automatic detection of version of C++ standard.
-				append-cxxflags -std=gnu++11
-				# Store ABI flags in CXXFLAGS in icu-config and icu-*.pc files for API consumers.
-				sed -e "/^CXXFLAGS =/s/ *$/ -std=gnu++11 -DUCHAR_TYPE=char16_t/" -i config/icu.pc.in config/Makefile.inc.in || die "sed failed"
-			else
-				eerror "GCC >=4.7 required for support for C++11"
-				die "C++11 not supported by currently used C++ compiler"
-			fi
-		else
-			if test-flag-CXX -std=c++11; then
-				# Disable automatic detection of version of C++ standard.
-				append-cxxflags -std=c++11
-				# Store ABI flags in CXXFLAGS in icu-config and icu-*.pc files for API consumers.
-				sed -e "/^CXXFLAGS =/s/ *$/ -std=c++11 -DUCHAR_TYPE=char16_t/" -i config/icu.pc.in config/Makefile.inc.in || die "sed failed"
-			else
-				die "C++11 not supported by currently used C++ compiler"
-			fi
-		fi
-		# Set type of UChar in C++ mode to char16_t.
-		append-cxxflags -DUCHAR_TYPE=char16_t
-		# Hardcode type of UChar in C++ mode in installed headers.
-		sed -e "/^    typedef UCHAR_TYPE UChar;$/a #elif defined(__cplusplus) && __cplusplus>=201103L\n    typedef char16_t UChar;" -i common/unicode/umachine.h || die "sed failed"
+		echo "merp"
+		#if [[ "$(tc-getCXX)" == *g++* ]]; then
+		#	if test-flag-CXX -std=gnu++11; then
+		#		# Disable automatic detection of version of C++ standard.
+		#		append-cxxflags -std=gnu++11
+		#		# Store ABI flags in CXXFLAGS in icu-config and icu-*.pc files for API consumers.
+		#		sed -e "/^CXXFLAGS =/s/ *$/ -std=gnu++11 -DUCHAR_TYPE=char16_t/" -i config/icu.pc.in config/Makefile.inc.in || die "sed failed"
+		#	else
+		#		eerror "GCC >=4.7 required for support for C++11"
+		#		die "C++11 not supported by currently used C++ compiler"
+		#	fi
+		#else
+		#	if test-flag-CXX -std=c++11; then
+		#		# Disable automatic detection of version of C++ standard.
+		#		append-cxxflags -std=c++11
+		#		# Store ABI flags in CXXFLAGS in icu-config and icu-*.pc files for API consumers.
+		#		sed -e "/^CXXFLAGS =/s/ *$/ -std=c++11 -DUCHAR_TYPE=char16_t/" -i config/icu.pc.in config/Makefile.inc.in || die "sed failed"
+		#	else
+		#		die "C++11 not supported by currently used C++ compiler"
+		#	fi
+		#fi
+		## Set type of UChar in C++ mode to char16_t.
+		#append-cxxflags -DUCHAR_TYPE=char16_t
+		## Hardcode type of UChar in C++ mode in installed headers.
+		#sed -e "/^    typedef UCHAR_TYPE UChar;$/a #elif defined(__cplusplus) && __cplusplus>=201103L\n    typedef char16_t UChar;" -i common/unicode/umachine.h || die "sed failed"
 	else
 		# Disable automatic detection of version of C++ standard.
 		if [[ "$(tc-getCXX)" == *g++* ]]; then
