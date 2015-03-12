@@ -30,7 +30,7 @@ EGIT_BRANCH="master"
 LICENSE="MPL-2.0"
 SLOT="0"
 KEYWORDS="~amd64"
-IUSE="clang -doc -blosc +jemalloc -test -logging -glfw -python -pydoc"
+IUSE="python clang -doc -blosc +jemalloc -test -logging viewer -pydoc"
 
 RDEPEND="media-libs/ilmbase
 dev-libs/boost
@@ -40,7 +40,7 @@ clang? ( sys-devel/clang )
 jemalloc? ( dev-libs/jemalloc )
 blosc? ( dev-libs/c-blosc )
 logging? ( dev-libs/log4cplus )
-glfw? ( media-libs/glfw )
+viewer? ( media-libs/glfw )
 python? ( dev-lang/python:2.7 dev-libs/boost[python] dev-python/numpy dev-python/epydoc )
 "
 DEPEND="${RDEPEND}
@@ -107,7 +107,7 @@ src_configure() {
 	set_flag blosc BLOSC
 	set_flag test CPPUNIT
 	set_flag logging LOG4CPLUS
-	set_flag glfw GLFW
+	set_flag viewer GLFW
 
 	if use python ; then
 		inclCmd='s|^PYTHON_INCL_DIR.*|PYTHON_INCL_DIR:=/usr/include/python$(PYTHON_VERSION)|'
@@ -140,17 +140,20 @@ src_configure() {
 
 src_compile() {
 	pushd openvdb
+	CCOPTS=
+	TOBUILD=lib print
 	if use clang; then
-		emake CXX=clang++ CC=clang
-	else
-		emake 
+		CCOPTS=CXX=clang++ CC=clang
 	fi
+	if use viewer; then
+		TOBULID=$TOBUILD+vdb_viewer
+	fi
+	emake $CCOPTS $TOBUILD
 	popd
 }
 
 src_install() {
 	# work around primitive build system
-	pwd
 	insinto /usr/include/openvdb
 	doins openvdb/*.h
 	for d in io math metadata tools tree util;
@@ -159,8 +162,19 @@ src_install() {
 		doins openvdb/$d/*.h
 	done
 	dolib.so openvdb/libopenvdb.so*
+
+	dobin vdb_print
+
+	if use viewer; then
+		dobin vdb_view
+	fi
+	if use python; then
+		insinto "$(python_get_includedir)"
+		doins openvdb/python/*.h
+		ln -f -s pyopenvdb.so openvdb/pyopenvdb.so.3.0
+		dolib.so openvdb/pyopenvdb.so*
+	fi
 	#TODO: install doc and python doc somewhere
 	#TODO install python stuff someewhere
-	#TODO: glfw to put view somewhere
 	#TODO: openexr to put render somewhere
 }
