@@ -111,8 +111,8 @@ src_configure() {
 
 	if use python ; then
 		inclCmd='s|^PYTHON_INCL_DIR.*|PYTHON_INCL_DIR:=/usr/include/python$(PYTHON_VERSION)|'
-		libCmd='s|^PYTHON_LIB_DIR.*|PYTHON_LIB_DIR:=|'
-		pyBCmd='s|^BOOST_PYTHON_LIB :=.*|BOOST_PYTHON_LIBR:=-lboost_python-2.7-mt|'
+		libCmd='s|^PYTHON_LIB_DIR.*|PYTHON_LIB_DIR:=/usr/lib64|'
+		pyBCmd='s|^BOOST_PYTHON_LIB :=.*|BOOST_PYTHON_LIB :=-lboost_python-2.7-mt|'
 		#sedcmd="sed -i -e \"$inclCmd\" -e \"$libCmd\" -e \"$pyBCmd\" Makefile || die \"sed died\""
 		sed -i -e "$inclCmd" -e "$libCmd" -e "$pyBCmd" Makefile || die "sed failed on python"
 	else
@@ -141,19 +141,23 @@ src_configure() {
 src_compile() {
 	pushd openvdb
 	CCOPTS=
-	TOBUILD=lib print
 	if use clang; then
 		CCOPTS=CXX=clang++ CC=clang
 	fi
+	emake $CCOPTS lib
+	emake $CCOPTS vdb_print
 	if use viewer; then
-		TOBULID=$TOBUILD+vdb_viewer
+		emake $CCOPTS vdb_viewer
 	fi
-	emake $CCOPTS $TOBUILD
+	if use python; then
+		emake $CCOPTS python
+	fi
 	popd
 }
 
 src_install() {
 	# work around primitive build system
+	pwd
 	insinto /usr/include/openvdb
 	doins openvdb/*.h
 	for d in io math metadata tools tree util;
@@ -163,10 +167,10 @@ src_install() {
 	done
 	dolib.so openvdb/libopenvdb.so*
 
-	dobin vdb_print
+	dobin openvdb/vdb_print
 
 	if use viewer; then
-		dobin vdb_view
+		dobin openvdb/vdb_view
 	fi
 	if use python; then
 		insinto "$(python_get_includedir)"
