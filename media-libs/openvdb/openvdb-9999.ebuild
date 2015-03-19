@@ -20,7 +20,8 @@
 
 EAPI=5
 
-inherit git-2
+inherit git-2 python
+PYTHON_DEPEND="2"
 
 DESCRIPTION="High-level C++ bindings for ZeroMQ"
 HOMEPAGE="https://github.com/dreamworksanimation/openvdb_dev"
@@ -60,6 +61,15 @@ set_flag() {
 		inclCmd="s|^${varname}_INCL_DIR.*|${varname}_INCL_DIR:=|"
 		sed -i -e "$inclCmd" Makefile || die "sed failed on no $flagname"
 	fi
+
+}
+
+pkg_setup() {
+	if use python; then
+		python_set_active_version 2
+		python_pkg_setup
+	fi
+
 
 }
 
@@ -157,7 +167,9 @@ src_compile() {
 
 src_install() {
 	# work around primitive build system
+	mylibdir="${ED}$(python_get_libdir)/"
 	pwd
+	echo ${mylibdir}
 	insinto /usr/include/openvdb
 	doins openvdb/*.h
 	for d in io math metadata tools tree util;
@@ -175,8 +187,9 @@ src_install() {
 	if use python; then
 		insinto "$(python_get_includedir)"
 		doins openvdb/python/*.h
-		ln -f -s pyopenvdb.so openvdb/pyopenvdb.so.3.0
-		dolib.so openvdb/pyopenvdb.so*
+		mkdir -p "${mylibdir}"
+		cp "openvdb/pyopenvdb.so" "${mylibdir}"
+		#dolib.so openvdb/pyopenvdb.so*
 	fi
 	#TODO: install doc and python doc somewhere
 	#TODO install python stuff someewhere
