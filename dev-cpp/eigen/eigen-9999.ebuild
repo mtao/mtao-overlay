@@ -1,12 +1,13 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: /var/cvsroot/gentoo-x86/dev-cpp/eigen/eigen-3.1.3.ebuild,v 1.8 2014/10/29 09:34:32 ago Exp $
 
-EAPI=4
+EAPI=6
 
-inherit cmake-utils
+FORTRAN_NEEDED="test"
 
-DESCRIPTION="C++ template library for linear algebra: vectors, matrices, and related algorithms"
+inherit cmake-utils fortran-2
+
+DESCRIPTION="C++ template library for linear algebra"
 HOMEPAGE="http://eigen.tuxfamily.org/"
 if [[ ${PV} = 9999 ]]; then
 	EHG_REPO_URI="https://bitbucket.org/eigen/eigen"
@@ -16,58 +17,107 @@ else
 fi
 
 LICENSE="LGPL-2 GPL-3"
-KEYWORDS="alpha amd64 ~arm ~hppa ia64 ppc ppc64 sparc x86 ~amd64-linux ~x86-linux"
 SLOT="3"
-IUSE="debug doc"
+KEYWORDS=""
+IUSE="altivec c++11 cuda debug doc neon openmp test" #zvector vsx
 
-DEPEND="doc? ( app-doc/doxygen[dot,latex] )"
+IUSE_CPU_FLAGS=" avx avx2 f16c fma3 sse2 sse3 sse4_1 sse4_2 ssse3" #x87
+IUSE+=" ${IUSE_CPU_FLAGS// / cpu_flags_x86_}"
+
 RDEPEND="!dev-cpp/eigen:0"
+DEPEND="
+	doc? ( app-doc/doxygen[dot,latex] )
+	test? (
+		dev-libs/gmp:0
+		dev-libs/mpfr:0
+		media-libs/freeglut
+		media-libs/glew
+		sci-libs/adolc
+		sci-libs/cholmod
+		sci-libs/fftw:3.0
+		sci-libs/pastix
+		sci-libs/umfpack
+		sci-libs/scotch
+		sci-libs/spqr
+		sci-libs/superlu
+		dev-qt/qtcore:4
+		virtual/opengl
+		virtual/pkgconfig
+	)
+	"
+# Missing:
+# METIS-5
+# GOOGLEHASH
 
-#src_unpack() {
-#	default
-#	mv ${PN}* ${P} || die
-#}
-
-src_prepare() {
-	sed -i CMakeLists.txt \
-		-e "/add_subdirectory(demos/d" \
-		-e "/add_subdirectory(blas/d" \
-		-e "/add_subdirectory(lapack/d" \
-		|| die "sed disable unused bundles failed"
+src_unpack() {
+	if [[ ${PV} == "9999" ]]; then
+		mercurial_src_unpack
+	else
+		default
+		mv ${PN}* ${P} || die
+	fi
 }
 
-src_configure() {
-	# benchmarks (BTL) brings up damn load of external deps including fortran
-	# compiler
-	CMAKE_BUILD_TYPE="release"
-	mycmakeargs=(
-		-DEIGEN_BUILD_BTL=OFF
-	)
-	cmake-utils_src_configure
+src_prepare() {
+	sed \
+		-e 's:-g2::g' \
+		-i cmake/EigenConfigureTesting.cmake || die
+
+	sed -i CMakeLists.txt \
+		-e "/add_subdirectory(demos/d" \
+		|| die "sed disable unused bundles failed"
+
+	if ! use test; then
+		sed -i CMakeLists.txt \
+			-e "/add_subdirectory(test/d" \
+			|| die "sed disable tests failed"
+
+		sed -i CMakeLists.txt \
+			-e "/add_subdirectory(blas/d" \
+			-e "/add_subdirectory(lapack/d" \
+			|| die "sed disable unused bundles failed"
+	fi
+
+	sed -i -e "/Unknown build type/d" CMakeLists.txt || die
+
+	use cuda && cuda_src_prepare
+
+	cmake-utils_src_prepare
 }
 
 src_compile() {
 	cmake-utils_src_compile
-	if use doc; then
-		cmake-utils_src_compile doc
-	fi
+	use doc && cmake-utils_src_compile doc
 }
 
 src_test() {
-	mycmakeargs=(
-		-DEIGEN_BUILD_TESTS=ON
-		-DEIGEN_TEST_NO_FORTRAN=ON
-		-DEIGEN_TEST_NO_OPENGL=ON
+	local mycmakeargs=(
+		-DEIGEN_TEST_ALTIVEC="$(usex altivec)"
+		-DEIGEN_TEST_CXX11="$(usex c++11)"
+		-DEIGEN_TEST_CUDA="$(usex cuda)"
+		-DEIGEN_TEST_OPENMP="$(usex openmp)"
+		-DEIGEN_TEST_AVX="$(usex cpu_flags_x86_avx)"
+		-DEIGEN_TEST_AVX512="$(usex cpu_flags_x86_avx2)"
+		-DEIGEN_TEST_F16C="$(usex cpu_flags_x86_f16c)"
+		-DEIGEN_TEST_FMA="$(usex cpu_flags_x86_fma3)"
+		-DEIGEN_TEST_SSE3="$(usex cpu_flags_x86_sse3)"
+		-DEIGEN_TEST_SSE4_1="$(usex cpu_flags_x86_sse4_1)"
+		-DEIGEN_TEST_SSE4_2="$(usex cpu_flags_x86_sse4_2)"
+		-DEIGEN_TEST_SSSE3="$(usex cpu_flags_x86_ssse3)"
+		-DEIGEN_TEST_NEON64="$(usex neon)"
+#		-DEIGEN_TEST_X87="$(usex cpu_flags_x86_x87)"
 	)
 	cmake-utils_src_configure
+	cmake-utils_src_compile blas
 	cmake-utils_src_compile buildtests
 	cmake-utils_src_test
 }
 
 src_install() {
 	cmake-utils_src_install
-	if use doc; then
-		cd "${CMAKE_BUILD_DIR}"/doc
-		dohtml -r html/*
-	fi
+	use doc && dodoc -r "${BUILD_DIR}"/doc/html
+
+	# Debian installs it and some projects started using it.
+	insinto /usr/share/cmake/Modules/
+	doins "${S}/cmake/FindEigen3.cmake"
 }
