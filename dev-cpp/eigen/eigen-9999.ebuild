@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 # $Header: /var/cvsroot/gentoo-x86/dev-cpp/eigen/eigen-3.1.3.ebuild,v 1.8 2014/10/29 09:34:32 ago Exp $
 
-EAPI=4
+EAPI=6
 
 inherit cmake-utils
 
@@ -29,6 +29,7 @@ RDEPEND="!dev-cpp/eigen:0"
 #}
 
 src_prepare() {
+	eapply_user
 	sed -i CMakeLists.txt \
 		-e "/add_subdirectory(demos/d" \
 		-e "/add_subdirectory(blas/d" \

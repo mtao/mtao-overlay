@@ -20,7 +20,9 @@
 
 EAPI=5
 
-inherit git-2
+PYTHON_COMPAT=( python2_7 )
+
+inherit git-2 python
 
 DESCRIPTION="High-level C++ bindings for ZeroMQ"
 HOMEPAGE="https://github.com/dreamworksanimation/openvdb_dev"
@@ -32,6 +34,8 @@ SLOT="0"
 KEYWORDS="~amd64"
 IUSE="clang -doc -blosc +jemalloc -test -logging -glfw -python -pydoc"
 
+REQUIRED_USE="python? ( ${PYTHON_REQUIRED_USE} )"
+
 RDEPEND="media-libs/ilmbase
 dev-libs/boost
 media-libs/openexr
@@ -41,7 +45,7 @@ jemalloc? ( dev-libs/jemalloc )
 blosc? ( dev-libs/c-blosc )
 logging? ( dev-libs/log4cplus )
 glfw? ( media-libs/glfw )
-python? ( dev-lang/python:2.7 dev-libs/boost[python] dev-python/numpy dev-python/epydoc )
+python? ( dev-lang/python:2.7 dev-libs/boost[python] dev-python/numpy dev-python/epydoc ${PYTHON_DEPS} )
 "
 DEPEND="${RDEPEND}
 doc? ( app-doc/doxygen )
@@ -62,6 +66,14 @@ set_flag() {
 	fi
 
 }
+
+pkg_setup() {
+	if use python; then
+		python_set_active_version 2
+		python_pkg_setup
+	fi
+}
+
 
 src_configure() {
 	pushd openvdb
@@ -159,6 +171,7 @@ src_install() {
 		doins openvdb/$d/*.h
 	done
 	dolib.so openvdb/libopenvdb.so*
+	if use python 
 	#TODO: install doc and python doc somewhere
 	#TODO install python stuff someewhere
 	#TODO: glfw to put view somewhere
