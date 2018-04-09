@@ -1,39 +1,57 @@
 
 EAPI=5
-PYTHON_MULTIPLE_ABIS="1"
-DISTUTILS_SRC_TEST="setup.py"
+PYTHON_COMPAT=( python2_7 python3_{4,5,6} )
 
-inherit distutils git-2
+inherit distutils-r1 eutils multilib git-r3 flag-o-matic
 
-MY_P="PyBrain-${PV}"
 
 DESCRIPTION="PyBrain is a modular Machine Learning Library for Python."
 HOMEPAGE="http://pybrain.org"
 EGIT_REPO_URI="https://github.com/pybrain/pybrain"
 
-LICENSE=""
+LICENSE="BSD"
 SLOT="0"
 KEYWORDS="*"
 IUSE="sci-libs/scipy"
 
-DEPEND=""
+DEPEND="sci-libs/scipy[${PYTHON_USEDEP}]"
 RDEPEND="${DEPEND}"
 
-S="${WORKDIR}/${MY_P}"
+DISTUTILS_IN_SOURCE_BUILD=1
 
-PYTHON_CFLAGS=("2.* + -fno-strict-aliasing")
 
-PYTHON_MODULES="pybrain"
+python_prepare_all() {
 
-pkg_setup() {
-	python_pkg_setup
+	export CC="$(tc-getCC) ${CFLAGS}"
+
+	append-flags -fno-strict-aliasing
+
+	# See progress in http://projects.scipy.org/scipy/numpy/ticket/573
+	# with the subtle difference that we don't want to break Darwin where
+	# -shared is not a valid linker argument
+	if [[ ${CHOST} != *-darwin* ]]; then
+		append-ldflags -shared
+	fi
+
+
+
+	distutils-r1_python_prepare_all
 }
 
-src_prepare() {
-	distutils_src_prepare
-
+python_compile() {
+	distutils-r1_python_compile
 }
 
-src_install() {
-	distutils_src_install
+python_test() {
+	distutils_install_for_testing
+}
+
+python_install() {
+	distutils-r1_python_install
+}
+
+python_install_all() {
+
+	distutils-r1_python_install_all
+
 }

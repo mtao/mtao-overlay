@@ -1,56 +1,34 @@
-# Copyright 1999-2014 Gentoo Foundation
+# Copyright 1999-2017 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
-# $Header: $
-# copied from github.com/himikof/wis-core/gentoo-overlay...
 
 EAPI=5
 
-inherit git-2
+inherit cmake-utils
 
-DESCRIPTION="High-level C++ bindings for ZeroMQ"
-HOMEPAGE="https://github.com/benjamg/zmqpp"
-EGIT_REPO_URI="https://github.com/benjamg/zmqpp.git"
-EGIT_BRANCH="develop"
+DESCRIPTION="ZeroMQ 'highlevel' C++ bindings"
+HOMEPAGE="https://github.com/zeromq/zmqpp"
+if [[ $PV == 9999 ]]; then
+	inherit git-r3
+	EGIT_REPO_URI="https://github.com/zeromq/zmqpp.git"
+else
+	SRC_URI="https://github.com/zeromq/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+fi
 
-LICENSE="MIT"
+KEYWORDS="~amd64 ~x86"
+
+LICENSE="MPL-2.0"
 SLOT="0"
-KEYWORDS="~amd64"
-IUSE="client doc static-libs test"
+IUSE="static-libs"
 
-RDEPEND="net-libs/zeromq
-client? ( dev-libs/boost )"
-DEPEND="${RDEPEND}
-doc? ( app-doc/doxygen )
-test? ( dev-libs/boost )"
-
-LIB_VERSION="4"
+DEPEND="net-libs/zeromq[static-libs?]"
+RDEPEND="${DEPEND}"
 
 src_configure() {
-	sed -i \
-		-e '/^CPPFLAGS/d' \
-		-e '/^CXXFLAGS/d' \
-		-e '/^LDFLAGS/d' \
-		-e '/^CXX/d' \
-		-e 's|^CONFIG.*|CONFIG = gentoo|' \
-		-e 's|^PREFIX = .*|PREFIX = /usr|' \
-		Makefile || die "sed failed"
-}
+	local mycmakeargs=(
+		-DIS_TRAVIS_CI_BUILD=OFF
+		-DZMQPP_BUILD_SHARED=ON
+		$(cmake-utils_use static-libs ZMQPP_BUILD_STATIC)
+	)
 
-src_compile() {
-	emake main
-	use client && emake client
-	if use doc ; then
-		doxygen zmqpp.doxygen.conf || die "building documentation failed"
-	fi		
-}
-
-src_install() {
-	# work around primitive build system
-	insinto /usr/include/zmqpp
-	doins src/zmqpp/*.hpp
-	newlib.so build/gentoo-*/libzmqpp.so.* libzmqpp.so.${LIB_VERSION}
-	dosym /usr/lib/libzmqpp.so.${LIB_VERSION} /usr/lib/libzmqpp.so
-	use static-libs && dolib.a build/gentoo-*/*.a
-	use client && dobin build/gentoo-*/zmqpp
-	use doc && dohtml -r docs/html/*
+	cmake-utils_src_configure
 }
