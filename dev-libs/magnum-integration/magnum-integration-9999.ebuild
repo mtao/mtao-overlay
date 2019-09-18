@@ -22,8 +22,9 @@ DEPEND="${RDEPEND}"
 
 src_prepare() {
 	if use imgui; then
-		git-r3_fetch https://github.com/ocornut/imgui.git v1.70
-		git-r3_checkout https://github.com/ocornut/imgui.git ${WORKDIR}/imgui
+		git-r3_fetch git://github.com/ocornut/imgui.git v1.70
+		git-r3_checkout git://github.com/ocornut/imgui.git ${WORKDIR}/imgui
+		https://github.com/ocornut/imgui/archive/v1.72b.zip
 	fi
 }
 
@@ -38,6 +39,7 @@ src_configure() {
 	$(cmake-utils_use_with glm)
 	$(cmake-utils_use_with imgui)
 	-DIMGUI_DIR=${WORKDIR}/imgui
+	-DImGui_INCLUDE_DIR=${WORKDIR}/imgui
 	)
 
 	cmake-utils_src_configure
