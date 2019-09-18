@@ -30,6 +30,7 @@ src_configure() {
 	local mycmakeargs=(
 	-DCMAKE_BUILD_TYPE=Release
 	-DWITH_EIGEN=$(usex eigen)
+	-DWITH_EIGEN=ON
 	-DWITH_BULLET=$(usex bullet)
 	-DWITH_DART=$(usex dart)
 	-DWITH_OVR=$(usex ovr)

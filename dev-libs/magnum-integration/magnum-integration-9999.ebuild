@@ -1,48 +1,45 @@
-EAPI=5
+# Copyright 2019 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
 
-EGIT_REPO_URI="git://github.com/mosra/magnum-integration.git"
+EAPI=6
 
-inherit cmake-utils git-r3
+inherit cmake-utils
 
 DESCRIPTION="Integration libraries for the Magnum C++11/C++14 graphics engine"
 HOMEPAGE="https://magnum.graphics"
+SRC_URI="https://github.com/mosra/magnum-integration/archive/master.tar.gz -> magnum-integration.tar.gz \
+https://github.com/ocornut/imgui/archive/v1.72b.zip -> imgui-v1.72b.zip
+"
 
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86"
 IUSE="+eigen +glm bullet +imgui dart ovr"
 
-RDEPEND="
+DEPEND="
 	dev-libs/magnum
 	eigen? ( dev-cpp/eigen )
 	glm? ( media-libs/glm )
 	bullet? ( sci-physics/bullet ) 
-"
-DEPEND="${RDEPEND}"
-
-src_prepare() {
-	if use imgui; then
-		git-r3_fetch git://github.com/ocornut/imgui.git v1.70
-		git-r3_checkout git://github.com/ocornut/imgui.git ${WORKDIR}/imgui
-		https://github.com/ocornut/imgui/archive/v1.72b.zip
-	fi
-}
+	"
+RDEPEND="${DEPEND}"
+BDEPEND=""
 
 src_configure() {
 	# general configuration
 	local mycmakeargs=(
 	-DCMAKE_BUILD_TYPE=Release
-	$(cmake-utils_use_with eigen)
-	$(cmake-utils_use_with bullet)
-	$(cmake-utils_use_with dart)
-	$(cmake-utils_use_with ovr)
-	$(cmake-utils_use_with glm)
-	$(cmake-utils_use_with imgui)
-	-DIMGUI_DIR=${WORKDIR}/imgui
-	-DImGui_INCLUDE_DIR=${WORKDIR}/imgui
+	-DWITH_EIGEN=$(usex eigen)
+	-DWITH_EIGEN=ON
+	-DWITH_BULLET=$(usex bullet)
+	-DWITH_DART=$(usex dart)
+	-DWITH_OVR=$(usex ovr)
+	-DWITH_GLM=$(usex glm)
+	-DWITH_IMGUI=$(usex imgui)
+	-DIMGUI_DIR=${WORKDIR}/imgui-1.72b
+	-DImGui_INCLUDE_DIR=${WORKDIR}/imgui-1.72b
 	)
 
 	cmake-utils_src_configure
 }
 
-# kate: replace-tabs off;
