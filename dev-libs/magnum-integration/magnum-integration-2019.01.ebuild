@@ -7,7 +7,8 @@ inherit cmake-utils
 
 DESCRIPTION="Integration libraries for the Magnum C++11/C++14 graphics engine"
 HOMEPAGE="https://magnum.graphics"
-SRC_URI="https://github.com/mosra/magnum-integration/archive/v${PV}.tar.gz -> magnum-integration.tar.gz \
+#SRC_URI="https://github.com/mosra/magnum-integration/archive/v${PV}.tar.gz -> magnum-integration.tar.gz \
+SRC_URI="https://github.com/mosra/magnum-integration/archive/master.zip -> magnum-integration.zip \
 https://github.com/ocornut/imgui/archive/v1.72b.zip -> imgui-v1.72b.zip
 "
 
@@ -30,7 +31,6 @@ src_configure() {
 	local mycmakeargs=(
 	-DCMAKE_BUILD_TYPE=Release
 	-DWITH_EIGEN=$(usex eigen)
-	-DWITH_EIGEN=ON
 	-DWITH_BULLET=$(usex bullet)
 	-DWITH_DART=$(usex dart)
 	-DWITH_OVR=$(usex ovr)
