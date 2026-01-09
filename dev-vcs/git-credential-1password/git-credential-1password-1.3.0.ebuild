@@ -11,6 +11,7 @@ SRC_URI="https://github.com/ethrgeist/git-credential-1password/archive/v${PV}.ta
 
 LICENSE=" MIT"
 SLOT="0"
+KEYWORDS="*"
 
 src_compile() {
 	go build -mod=vendor . || die
