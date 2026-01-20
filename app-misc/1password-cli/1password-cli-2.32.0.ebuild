@@ -17,6 +17,9 @@ KEYWORDS="~amd64 ~arm64"
 RESTRICT="strip test bindist"
 
 BDEPEND="app-arch/unzip"
+DEPEND="
+acct-group/1password-cli
+"
 
 QA_FLAGS_IGNORED="usr/bin/op"
 
