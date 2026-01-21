@@ -30,5 +30,6 @@ src_install() {
 
 pkg_postinst() {
 	chgrp onepassword-cli ${ROOT}/usr/bin/op || die
+	chmod g+s ${ROOT}/usr/bin/op || die
 
 }
