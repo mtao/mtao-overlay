@@ -18,7 +18,7 @@ RESTRICT="strip test bindist"
 
 BDEPEND="app-arch/unzip"
 RDEPEND="
-acct-group/1password-cli
+acct-group/onepassword-cli
 "
 DEPEND="${RDEPEND}"
 
