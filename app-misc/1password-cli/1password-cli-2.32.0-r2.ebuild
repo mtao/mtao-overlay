@@ -17,12 +17,18 @@ KEYWORDS="~amd64 ~arm64"
 RESTRICT="strip test bindist"
 
 BDEPEND="app-arch/unzip"
-DEPEND="
+RDEPEND="
 acct-group/1password-cli
 "
+DEPEND="${RDEPEND}"
 
 QA_FLAGS_IGNORED="usr/bin/op"
 
 src_install() {
 	dobin op
+}
+
+pkg_postinst() {
+	chgrp onepassword-cli ${ROOT}/usr/bin/op || die
+
 }
