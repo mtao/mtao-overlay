@@ -13,8 +13,10 @@ LICENSE=" MIT"
 SLOT="0"
 KEYWORDS="*"
 
+BDEPEND=">=dev-lang/go-1.26"
+
 src_compile() {
-	go build -mod=vendor . || die
+	ego build . || die
 }
 
 src_install() {
