@@ -1,0 +1,11 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -44,7 +44,6 @@ if(CMAKE_BUILD_TYPE MATCHES Debug OR CMAKE_BUILD_TYPE MATCHES DEBUG)
+   message(STATUS "Configuring hyprpwcenter in Debug")
+   add_compile_definitions(hyprpwcenter_DEBUG)
+ else()
+-  add_compile_options(-O3)
+   message(STATUS "Configuring hyprpwcenter in Release")
+ endif()
+ 
