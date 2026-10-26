@@ -1,0 +1,14 @@
+#!/sbin/openrc-run
+# Copyright 2026 Gentoo Authors
+# Distributed under the terms of the GNU General Public License v2
+
+description="WiFiman Desktop daemon"
+command="/usr/lib/wifiman-desktop/wifiman-desktopd"
+command_background="yes"
+pidfile="/run/${RC_SVCNAME}.pid"
+supervisor="supervise-daemon"
+respawn_delay=30
+
+depend() {
+	need net
+}
